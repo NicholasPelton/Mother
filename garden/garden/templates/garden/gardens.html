@@ -1,0 +1,30 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Gardens{% endblock %}
+
+{% block content %}
+<center><h4>{{user.username}}'s Gardens</h4></center>
+
+
+<div class="row" align="center">
+    {% for garden in user.garden_set.all %}
+        <div class="col-lg">
+            <br>
+            <a href="{% url 'garden' user.username garden.name %}">
+                <div class="card mr-2 ml-2" style="width: 18rem;">
+                    <img class="card-img-top" 
+                        src="{{media_cheat}}{{garden.serial}}/current.png" 
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <p class="card-text"><h3>{{garden.name}}</h3>{{garden.start_date}}<br>{{garden.stage}}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+    
+</div>
+<br><br>
+<a href="{% url 'new_garden' user.username %}" role="button" class="btn btn-secondary btn-lg btn-block">Start A New Garden</a>
+<br><br>
+{% endblock %}
