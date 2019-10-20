@@ -1,0 +1,176 @@
+{% extends 'users/base.html' %}
+
+{% block title %}{{garden.name}} blog{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+
+      <div class="row">
+          
+        <!-- Post Content Column -->
+        <div class="col-lg-8">
+
+
+<!-------------------------------------- PICTURE LOOP ----------------------------->
+
+        {% for pic in garden.picture_set.all %}
+              <!-- Title -->
+              <h3 class="mt-4" id="{{pic.date|date}}">
+                {% if forloop.counter == 1 %}
+                  Now:
+                  {{time_now}}
+                {% else %}
+                  {{pic.date}}
+                {% endif %}
+              </h3>
+    
+              <hr>
+    
+              <!-- Preview Image -->
+              {% if forloop.counter == 1 %}
+                <img class="img-fluid rounded" id="current_pic" src="{{MEDIA_URL}}loading.gif" alt="">
+              {% else %}
+                <img class="img-fluid rounded" src="{{MEDIA_URL}}{{pic.photo}}" alt="">
+              {% endif %}
+              
+              <hr>
+    
+              <!-- Post Content -->
+              <p class="lead">        
+              </p>
+    
+              <!-- Single Comment -->
+              <div class="media mb-4">
+                <i class="material-icons d-flex mr-3" style="font-size:36px;">spa</i>
+                <div class="media-body">
+                    <h5 class="mt-0">
+                        {% if forloop.counter == 1 %}
+                          <strong>Temperature:</strong>{{garden.current_temp}}&deg;F
+                          <strong>Humidity:</strong>{{garden.current_humidity}}%
+                        {% else %}
+                        <strong>Temperature:</strong><br> High - {{pic.temp_high}}&deg;F, Low - {{pic.temp_low}}&deg;F%<br>
+                        <strong>Humidity:</strong><br> High - {{pic.humidity_high}}%, Low - {{pic.humidity_low}}%
+                        {% endif %}
+                    </h5>
+                  <span {% if forloop.counter == 1 %}id="current_comment"{% endif %}></span>{{ pic.comments|linebreaks }}
+                </div>
+              </div>
+              
+              <!-- Comments Form -->
+          {% if forloop.counter == 1 %}
+          <div class="card my-4">
+            <h5 class="card-header">Leave a Comment:</h5>
+            <div class="card-body">
+              <form>
+                <div class="form-group">
+                  <textarea class="form-control" rows="3" id="comment"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" id="submit_comment">Submit</button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+          
+        {% empty %}
+          <h3 class="mt-4">
+            Now:{{time_now}}
+          </h3>
+          <hr>
+        <img class="img-fluid rounded" id="current_pic" src="{{MEDIA_URL}}loading.gif" alt="">
+        <hr>
+    
+              <!-- Post Content -->
+              <p class="lead">        
+              </p>
+              <div class="media mb-4">
+                <i class="material-icons d-flex mr-3" style="font-size:36px;">spa</i>
+                <div class="media-body">
+                    <h5 class="mt-0">
+                          <strong>Temperature:</strong>{{garden.current_temp}}&deg;F
+                          <strong>Humidity:</strong>{{garden.current_humidity}}%
+                    </h5>
+                  <span id="current_comment"></span>
+                </div>
+              </div>        
+
+          <div class="card my-4">
+            <h5 class="card-header">Leave a Comment:</h5>
+            <div class="card-body">
+              <form>
+                <div class="form-group">
+                  <textarea class="form-control" rows="3" id="comment"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" id="submit_comment">Submit</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+
+        </div>
+        
+<!----------------------------------- Sidebar Widgets Column ------------------------------------->
+        <div class="col-md-4">
+
+          <!-- Categories Widget -->
+          <div class="card my-4">
+            <h5 class="card-header">Dates</h5>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <ul class="list-unstyled mb-0">
+                    {% for pic in garden.picture_set.all %}
+                      {% if forloop.counter != 1 %}
+                        <li><a href="#{{pic.date|date}}">{{pic.date|date}}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side Widget -->
+
+        </div>
+
+      </div>
+      <!-- /.row -->
+
+</div>
+
+<script type=text/javascript>
+
+    var roomName = {{room_name_json}};
+    var loadSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/ws/blog/' + roomName + '/');
+
+
+    loadSocket.onmessage = function(e) {
+        $("#current_pic").attr('src','{{MEDIA_URL}}users/{{garden.serial}}/current.png?{{time_str}}');
+    };
+
+
+// Variable exchange json
+    $('#submit_comment').click(function(){
+        var texts = $("#comment").val();
+        var new_texts = texts + '\n\n' + $("#current_comment").text();
+        $.ajax({
+            url : "{% url 'blog' user.username garden.name  %}",
+            type : 'POST',
+            data : { texts : texts },
+            dataType : 'json',
+            success : function(data) {
+            }
+        });
+        $("#comment").val("");
+        $("#current_comment").text(new_texts);
+        return false;
+    });
+</script>
+
+
+
+{% endblock %}

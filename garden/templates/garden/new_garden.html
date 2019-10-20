@@ -1,0 +1,16 @@
+
+
+{% extends 'users/base.html' %}
+
+{% block title %}Start a Garden{% endblock %}
+
+{% block content %}
+<center><h1 class="display-1">Start a Garden</h1></center>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Create Garden</button>
+</form>
+
+{% endblock %}
