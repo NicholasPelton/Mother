@@ -1,0 +1,9 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+
+Sorry, you are not authorized. Do you need to <a href="{% url 'login'%}">log in</a> or <a href="{% url 'signup'%}">sign up</a>? 
+
+{% endblock %}
